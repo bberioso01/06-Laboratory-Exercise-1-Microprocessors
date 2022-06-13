@@ -1,0 +1,83 @@
+//LDR
+int ldr_pin=A0;//Set A0(Analog Input) for LDR.
+
+//TMP36
+int tmp_pin = A1;
+
+//UDS
+const int pingPin = 5;
+const int ledPin = 6;
+
+void setup() {
+Serial.begin(9600);
+//LDR LED(red)
+pinMode(2,OUTPUT);
+//TMP LED(blue)
+pinMode(3,OUTPUT);
+//TMP LED(red)
+pinMode(4,OUTPUT);
+//UDS LED(orange)
+pinMode(ledPin, OUTPUT);
+}
+
+void loop() {
+ldr();
+tmp();
+uds();
+}
+
+void ldr(){
+int ldr_val=analogRead(ldr_pin);//Reads the Value of LDR(light).
+//Serial.println("LDR value is: " + String(ldr_val));//Prints the value of LDR to Serial Monitor.
+if(ldr_val<300)
+  {
+    digitalWrite(2,HIGH);//Makes the LED glow in Dark.
+  }
+  else
+  {
+    digitalWrite(2,LOW);//Turns the LED OFF in Light.
+  }
+}
+
+void tmp(){
+int tmp_val = analogRead(tmp_pin);
+float tmp_voltage = (tmp_val / 1024.0) * 5.0 - .5;
+float tmp_tempC = tmp_voltage * 100;
+//Serial.println("Temperature is: " + String(tmp_tempC) + "C");
+  
+if(tmp_tempC >= 30){
+  digitalWrite(3,LOW);
+  digitalWrite(4,HIGH);
+}
+else{
+  digitalWrite(3,HIGH);
+  digitalWrite(4,LOW);
+}
+}
+
+void uds(){
+  long duration, cm;
+  
+  pinMode(pingPin, OUTPUT);
+  digitalWrite(pingPin, LOW);
+  digitalWrite(pingPin, HIGH);
+  digitalWrite(pingPin, LOW);
+  
+  pinMode(pingPin, INPUT);
+  duration = pulseIn(pingPin, HIGH);
+  
+  cm = microsecondsToCentimeters(duration);
+  
+  if(cm < 150) {
+    digitalWrite(ledPin, HIGH);
+  }
+  else {
+    digitalWrite(ledPin, LOW);
+  }
+}
+long microsecondsToCentimeters(long microseconds) {
+  // The speed of sound is 340 m/s or 29 microseconds per centimeter.
+  // The ping travels out and back, so to find the distance of the
+  // object we take half of the distance travelled.
+  return microseconds / 29 / 2;
+}
